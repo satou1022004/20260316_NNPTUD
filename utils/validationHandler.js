@@ -11,14 +11,17 @@ let options = {
 }
 module.exports = {
     userPostValidation: [
-        body('email').isEmail().withMessage("khong phai email"),
-        body('password').isStrongPassword(options.password)
+        body('email').notEmpty().withMessage("email khong duoc de trong")
+        .bail().isEmail().withMessage("khong phai email"),
+        body('password').notEmpty().withMessage("password khong duoc de trong")
+        .bail().isStrongPassword(options.password)
             .withMessage(
                 util.format(
                     "password phai co it nhat %d ki tu, trong do it nhat %d ki tu so",
                     options.password.minLength, options.password.minNumbers
                 )
             ),
+        body('avatarUrl').optional().isURL().withMessage("avatarUrl phai la URL")
 
     ],
     validateResult: function (req, res, next) {

@@ -3,22 +3,20 @@ var router = express.Router();
 let bcrypt = require('bcrypt')
 let { userPostValidation, validateResult } =
   require('../utils/validationHandler')
+let { checkLogin } = require('../utils/authHandler')
 
 let userController = require("../controllers/users");
 
 
-router.get("/", async function (req, res, next) {
-  let users = await userModel
-    .find({ isDeleted: false }).
-    populate({ path: 'role', select: 'name' })
-  res.send(users);
+router.get("/", checkLogin, async function (req, res, next) {
+  let result = await userController.getAllUser();
+  res.send(result)
 });
 
-router.get("/:id", async function (req, res, next) {
+router.get("/:id",checkLogin, async function (req, res, next) {
   try {
-    let result = await userModel
-      .find({ _id: req.params.id, isDeleted: false })
-    if (result.length > 0) {
+    let result = await userController.FindByID(req.params.id)
+    if (result) {
       res.send(result);
     }
     else {
@@ -35,7 +33,7 @@ router.post("/", userPostValidation, validateResult,
       let newItem = await userController.CreateAnUser(
         req.body.username,
         req.body.password,
-        req.body.email, 
+        req.body.email,
         req.body.role,
         "", "",
         false
